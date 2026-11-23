@@ -1,0 +1,27 @@
+==============================================================================
+OUTPUT FILE - Assignment4_CO4/Task2
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac AppointmentDesk.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: AppointmentDesk model self-test (headless) ----
+$ java -Djava.awt.headless=true AppointmentDesk
+Departments: [Cardiology, Orthopaedics, ENT]
+Doctors in Orthopaedics: [Dr. Khan, Dr. Das, Dr. Paul]
+CONFIRMED: patient 1001 with Dr. Khan at 09:00
+ERROR: Dr. Khan is already booked at 09:00
+ERROR: invalid patient ID
+CONFIRMED: patient 1003 with Dr. Rao at 10:00
+Cached Map lookup per department change = O(1); DB query per change = O(network + m log d); memory of the Map = O(d + m).
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE GUI SESSION (AppointmentDesk on a desktop):
+  select department Orthopaedics  -> doctor list becomes Dr. Khan, Dr. Das, Dr. Paul
+  Patient ID 1001, Dr. Khan, 09:00, Book -> status: CONFIRMED: patient 1001 with Dr. Khan at 09:00
+  same doctor and slot again      -> status: ERROR: Dr. Khan is already booked at 09:00
+  Patient ID abc, Book            -> status: ERROR: invalid patient ID
+  close window while booking      -> confirm dialog "A booking is in progress. Close anyway?"
+
+---- NOTES / ANSWERS ----
+Event table, component hierarchy, handler pseudocode and the event trace are in the header comment of AppointmentDesk.java. The model (department -> doctors, booking rules) is tested headless above.
+ALTERNATIVE (query the DB on every department change): time per change = network + query (ms) vs O(1) for the cached Map; memory O(d + m) for the Map vs nothing cached - the Map is stale until reloaded.

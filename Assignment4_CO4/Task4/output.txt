@@ -1,0 +1,29 @@
+==============================================================================
+OUTPUT FILE - Assignment4_CO4/Task4
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac DrawPad.java   (compiled without errors)
+
+---- Misspelled method WITH @Override (mouseclicked) - javac result ----
+DrawPad.java:31: error: method does not override or implement a method from a supertype
+            @Override public void mouseclicked(MouseEvent e) {
+            ^
+1 error
+
+---- Misspelled method WITHOUT @Override - javac result ----
+(compiles silently - the defect is only found at run time: nothing happens on click)
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE RUN (java DrawPad on a desktop; AWT needs a display, so this sandbox cannot run it):
+  window opens 400x300, label shows "Clicks: 0"
+  3 clicks -> 3 dots drawn, label shows "Clicks: 3"
+  minimise and restore the window -> the 3 dots are redrawn (paint() draws every stored Point)
+  close button -> dispose()
+Screenshots to attach: (1) after 3 clicks, (2) after minimise/restore.
+
+---- NOTES / ANSWERS ----
+4.1 The method is spelled mouseclicked (lower-case c) so it does not override MouseAdapter.mouseClicked: it is never called, so no dot is drawn and the count stays 0.
+4.2 Draw dots, minimise/restore (or cover the window): getGraphics() draws directly on the screen, nothing is remembered; AWT then calls paint(), which draws nothing, so the dots vanish.
+4.3 Repair: store each Point, update the label, call repaint(), draw all points in paint() (TODO 1 and 2 in DrawPad.java).
+4.4 @Override on the misspelled method gives a compile error (captured above).
+ALTERNATIVE (off-screen BufferedImage): repaint = copy one image O(1 image copy) instead of O(n) points; space width x height pixels instead of O(n) points.

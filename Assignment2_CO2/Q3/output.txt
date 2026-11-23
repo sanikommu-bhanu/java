@@ -1,0 +1,38 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q3
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac *.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Attendance (TODO 1 completed) ----
+$ java Attendance
+Unique students: 2
+
+---- PROGRAM OUTPUT: HashContractExperiments ----
+$ java HashContractExperiments
+Test 1 - three different students, no repeats (BadStudent)
+   predicted size = 3, observed size = 3  (prediction correct)
+   reason: no duplicates exist, so nothing can go wrong; the defect is hidden
+Test 2 - 5 scans of 3 students (BadStudent, hashCode not overridden)
+   predicted size = 5, observed size = 5  (prediction correct)
+   reason: Object.hashCode() is identity-based, equal students land in different buckets, so equals() is never even called
+Test 2b - same scans with the corrected Student class
+   predicted size = 3, observed size = 3  (prediction correct)
+   reason: equal objects now share a hash code, same bucket, equals() detects the duplicate
+Test 3 - regNo changed after insertion
+   contains(m) = false (predicted false: searched in the NEW bucket), remove(m) = false, size still 1 -> the object is lost inside the set (memory leak)
+Test 4 - TreeSet ordered by name; C1/Ravi, C2/Ravi (different students, same name), C1/Zoya (same regNo as first)
+   predicted size = 2, observed size = 2  (prediction correct)
+   reason: TreeSet uses compareTo only: C2/Ravi is dropped as a 'duplicate' of C1/Ravi although equals() says they differ
+Contract check: a.equals(b)=true, hash(a)==hash(b)=true
+500,000 scans: HashSet 167 ms (183486 unique), TreeSet(comparator) 1145 ms (183486 unique), HashMap<regNo,Student> 106 ms (183486 unique)
+
+---- BEFORE completing TODO 1 (hashCode removed) - java Attendance ----
+Unique students: 3
+(expected 2 but got 3: equal students have different identity hash codes, land in different buckets and equals() is never called)
+
+---- NOTES / ANSWERS ----
+Predictions were written in the code before each result. Without hashCode(), equal students get different identity hash codes -> different buckets -> equals() is never consulted -> duplicates appear (Test 2: 5 instead of 3; Attendance printed 3 instead of 2).
+HashSet: hashCode() picks the bucket, equals() confirms inside it. Changing a field used by hashCode() after insertion strands the object in the old bucket (Test 3: contains false, remove false).
+Fix: hashCode() on the same field(s) as equals() (regNo.hashCode()); verified by Test 2b and the contract check.
+ALTERNATIVES: TreeSet+Comparator O(log n) per scan (needs comparator consistent with equals - Test 4 shows what breaks), HashMap<regNo,Student> O(1) average; space O(n) for each (TreeMap entries are bigger).

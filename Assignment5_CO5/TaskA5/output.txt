@@ -1,0 +1,21 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskA5
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac TransferAndInjectionDemo.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: TransferAndInjectionDemo ----
+$ java TransferAndInjectionDemo
+start: {hostel=1000, canteen=200} total=1200
+AUTO-COMMIT, failure between updates: {hostel=500, canteen=200} total=700   <-- Rs 500 vanished
+TRANSACTION, failure between updates : {hostel=1000, canteen=200} total=1200   <-- rolled back, nothing lost
+TRANSACTION, no failure              : {hostel=500, canteen=700} total=1200
+UNSAFE SQL: SELECT * FROM users WHERE id='arun' AND pwd='secret'
+UNSAFE SQL: SELECT * FROM users WHERE id='admin'--' AND pwd='x'
+UNSAFE SQL: SELECT * FROM users WHERE id='nobody' AND pwd='' OR '1'='1'
+SAFE  SQL : SELECT 1 FROM users WHERE id = ? AND pwd_hash = ?   (values bound separately: id=[admin'--] is just a string that matches no user)
+Cost: a transaction adds one commit (one disk flush) instead of two - usually CHEAPER than two auto-commits; the risk of two auto-commits is inconsistent data.
+
+---- NOTES / ANSWERS ----
+Transaction pseudocode and injection analysis are in pseudocode.txt. Demo above: with auto-commit a failure between two updates loses Rs 500 (total 700 instead of 1200); with a transaction the first update is rolled back (total 1200). Injection: id = admin'-- comments out the password test; pwd = ' OR '1'='1 makes the condition always true; PreparedStatement binds values separately so the structure cannot change.
+Time: one commit instead of two is usually cheaper; the risk of two auto-commits is inconsistent data.

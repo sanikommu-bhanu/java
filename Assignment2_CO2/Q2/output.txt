@@ -1,0 +1,28 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q2
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac ListBench.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: ListBench ----
+$ java ListBench
+Times in microseconds (us) for 1000 operations unless noted (iterate = whole list once)
+size     structure       add-end insert-front   insert-mid       get(k)      iterate
+10000    ArrayList           394         1418         1386          539         1798
+10000    LinkedList          794          661        25372         6670         1611
+10000    ArrayDeque          229          252          n/a          n/a         1185
+50000    ArrayList           125         9710         4689          501         1436
+50000    LinkedList          147          110        92844        25026         4039
+50000    ArrayDeque           90           93          n/a          n/a         3402
+100000   ArrayList           131        19280         9302          234         6944
+100000   LinkedList          141          239       210856        52763          305
+100000   ArrayDeque           87           96          n/a          n/a         1015
+Plain int[] insert-front x1000 (n=100,000, manual shifting): 21887 us  (O(n) per insert, no auto-grow)
+Operating boundary: ArrayList is fine for append-mostly + random access; stop recommending it when front/middle inserts dominate
+and the list is large (cost grows linearly with size). Queue-like 'Up Next' usage -> ArrayDeque (O(1) at both ends, no node objects).
+
+---- NOTES / ANSWERS ----
+ArrayList: O(1) amortised add at end, O(1) get(k), O(n) insert/remove at front/middle (array shifting, but a fast memmove). LinkedList: O(1) at the ends, O(n) get(k)/middle (pointer chasing - measured ~100x slower get). ArrayDeque: O(1) at both ends, no index access.
+Boundary: ArrayList is reasonable for append-mostly + random access playlists; stop recommending it when front/middle inserts dominate and the list is large (cost grows linearly: 1000 front inserts took ~2 ms at 10k, ~19 ms at 100k).
+Changed condition ('Up Next' queue, add both ends, remove front): ArrayDeque.
+Space: array slot ~4 B per element vs linked node ~24-32 B; plain array with manual shifting = same O(n) as ArrayList for inserts but no auto-grow.

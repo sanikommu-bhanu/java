@@ -1,0 +1,19 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q7
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac AgingRedesign.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: AgingRedesign ----
+$ java AgingRedesign
+n        | ORIGINAL scan (time ms, evaluations) | REDESIGN heap (time ms, comparisons) | same order?
+5000     |         41 ms,      12,502,500 evals |          8 ms,         103,208 cmps | true
+20000    |        356 ms,     200,010,000 evals |          9 ms,         492,842 cmps | true
+40000    |       2664 ms,     800,020,000 evals |          7 ms,       1,066,336 cmps | true
+Original: evaluations ~ n^2/2 (8x patients -> ~64x work). Redesign: comparisons ~ n log n.
+The original may still be preferable when n is tiny (<~100: no heap overhead) or when the aging rule is non-linear / changes every minute.
+
+---- NOTES / ANSWERS ----
+Chosen: Q6 triage with the fair (aging) rule. DIAGNOSIS: effective priority depends on 'now', so the naive version recomputes it for every waiting patient on every next() = O(n) per call, O(n^2) overall (800 million evaluations for 40,000 patients). OBJECTIVE: same order, next() in O(log n).
+REDESIGN: effective = severity*W + arrival - now; 'now' is common to all patients, so ordering by arrival + severity*W gives the identical order and never changes -> compute once, keep in a PriorityQueue. PREDICTION: same order; time grows ~n log n.
+RESULT: identical order in all runs; 40,000 patients: ~2.3-2.6 s -> ~5-8 ms (hundreds of times faster), comparisons 1.07 million vs 800 million. Trade-offs: aging rule fixed at admission (changing W needs a rebuild), one extra long per patient. The original may be preferable for tiny n or non-linear/time-varying rules.

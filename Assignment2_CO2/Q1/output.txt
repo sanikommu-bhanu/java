@@ -1,0 +1,29 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q1
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac StringBench.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: StringBench ----
+$ java StringBench
+Workload (avg of 5 runs, ms)                   String +    Builder     Buffer est. temp Strings(+)
+W1: short ticket (10 fields) x 20,000                13         10         18       400000
+W2: 50 fields x 10,000 tickets                       14          5          5      1000000
+W3: very long ticket (2,000 fields) x 100           244          1          2       400000
+Heap used before/after 20 long tickets built with + : 2085 KB / 2379 KB (garbage created, churn chars=755600)
+Alternatives, W2 (ms): join=15 StringJoiner=24 format=555
+Shared log, 4 threads x 1000000 appends of 'x' (expected length 4000000):
+  run 1 StringBuilder -> length 4000000
+  run 1 StringBuffer  -> length 4000000
+  run 2 StringBuilder -> length 3000001  (exceptions: [ArrayIndexOutOfBoundsException])
+  run 2 StringBuffer  -> length 4000000
+  run 3 StringBuilder -> length 4000000
+  run 3 StringBuffer  -> length 4000000
+Recommendation: per-ticket text (one thread owns it) = StringBuilder; shared log = StringBuffer (or better: a synchronized/concurrent logger).
+
+---- NOTES / ANSWERS ----
+PREDICTION: '+' in a loop creates a new String each time and copies all earlier characters -> O(n^2); StringBuilder O(n); StringBuffer O(n) but synchronized (slightly slower).
+OBSERVED: for short tickets all three are close (noise/JIT dominates); for the 2,000-field ticket '+' is ~100-200x slower. Prediction supported; the 'negligible' view is only true for tiny tickets.
+String.join/StringJoiner behave like a builder (O(n)); String.format per field is much slower.
+DESIGN DECISION: per-ticket text is owned by one thread -> StringBuilder. Shared booking log appended by several threads -> StringBuffer (or a synchronized/concurrent logger). NOTE: this sandbox has ONE CPU core, so the StringBuilder race did not show here; on a multi-core machine StringBuilder usually loses characters or throws ArrayIndexOutOfBoundsException.
+Complexity: + : O(n^2) characters copied, ~n temporary Strings; StringBuilder O(n) with amortised doubling, 1 buffer.

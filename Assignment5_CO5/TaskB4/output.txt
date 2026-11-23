@@ -1,0 +1,28 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskB4
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac PassLoader.java Migration.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Migration (dry run, no database) ----
+$ java Migration
+Read 8 lines: 3 valid, 5 failed validation
+  FAILED line 3: invalid pass id or register number  [P3,BAD,Kiran,5,100]
+  FAILED line 4: route not an integer  [P4,192311004,Meena,x,100]
+  FAILED line 5: expected 5 fields, found 4  [P5,192311005,Ravi,3]
+  FAILED line 6: empty line  []
+  FAILED line 8: negative amount  [P8,192311008,Omar,2,-5]
+DRY RUN - database not reachable (SQLException): 3 valid rows would be loaded in one transaction.
+Metadata is useful when moving servers: it confirms the product, driver version and that the expected tables exist before loading.
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE OUTPUT of the database part (MySQL running, connector JAR on the classpath):
+Loaded 3 rows in one transaction (batches of 1,000).
+Database : MySQL 8.0.36
+Driver   : MySQL Connector/J 8.3.0
+Tables   : bus_pass
+
+---- NOTES / ANSWERS ----
+Migration.java reads the old file, validates every line, reports failed records with line numbers, loads the valid rows with PassLoader.loadAll in one transaction and prints DatabaseMetaData (product, driver, tables). Above: real dry run (no database here) with the failure report; below: SAMPLE output of the database part.
+Production decision for 12 campuses, 100x data, concurrent counters: a database (MySQL). Text files: O(n) search, no concurrent-write safety; serialization: whole-object load, version fragility, no concurrency control; the database gives indexes (O(log n) search), transactions, constraints (UNIQUE pass_id) and concurrent access.
+ALTERNATIVE (one serialized file per campus): searching all passes = 12 separate loads (O(total)), data duplicated per campus and concurrent counters need file locking, so two counters can overwrite each other.

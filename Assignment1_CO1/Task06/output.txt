@@ -1,0 +1,24 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task06
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Task06.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Task06 ----
+$ java Task06
+Creating ElectricCar -> constructor execution order (superclass first):
+  Vehicle constructor  (regNo=TN03C3)
+  Car constructor
+  ElectricCar constructor
+ElectricCar TN03C3 (battery 40 kWh, seats 5)
+Fee for 130 min: Rs 90.0 + charging 10 kWh: Rs 120.0
+Student Arun parks free: true
+Staff Divya parks free: true
+Visitor Kiran parks free: false
+Space per vehicle: inheritance = fields of the chain only; composition adds one VehicleType reference (4 B).
+
+---- NOTES / ANSWERS ----
+Hierarchy: hierarchical (Vehicle -> TwoWheeler, Car) + multilevel (Vehicle -> Car -> ElectricCar). Constructor order for ElectricCar: Vehicle, Car, ElectricCar (shown above); super(regNo) is the first statement.
+super is used for constructors (super(regNo)) and methods (super.describe()).
+UML: see the diagram in the header comment of Task06.java.
+ALTERNATIVE (composition: Vehicle has-a VehicleType rate): adding a type = a new VehicleType object/row (no new class); fee = O(1) either way; space = one extra reference per vehicle but rates can be shared and changed at run time.

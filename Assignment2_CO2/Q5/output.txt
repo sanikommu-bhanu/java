@@ -1,0 +1,25 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q5
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac LeaderboardDemo.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: LeaderboardDemo ----
+$ java LeaderboardDemo
+[Eagles(9,6), Bisons(9,4), Panthers(9,4), Cobras(6,1)]
+
+---- PROGRAM OUTPUT: ComparatorTests (extra tests) ----
+$ java ComparatorTests
+Tie-heavy data, correct comparator : [Eagles(9,6), Bisons(9,4), Panthers(9,4), Dragons(6,3), Akulas(6,1), Cobras(6,1), Falcons(3,0), Gators(3,0)]
+Faulty comparator (subtraction) on extreme points: compare(Low,High) = -2147483643  (should be > 0 because High ranks above Low)
+  consistent? false   | correct comparator consistent? true
+Faulty comparator (ignores tie-breakers) keeps input order among ties: [Panthers(9,4), Eagles(9,6), Bisons(9,4), Cobras(6,1), Akulas(6,1), Dragons(6,3), Falcons(3,0), Gators(3,0)]
+Three stable sorts gives same result as one chain : true  (3 x O(n log n) instead of 1)
+Bounded type demo: best of {3,9,5} = 9, best of {Ann,Zed,Bob} = Zed
+Why Bisons < Panthers: equal points (9) and goal difference (4), so the name tie-breaker decides: 'Bisons' < 'Panthers' alphabetically.
+
+---- NOTES / ANSWERS ----
+Design: separate Comparator objects (Team has several valid orders; Comparable allows only one 'natural' order) built with comparingInt(...).reversed().thenComparing(...). Leaderboard<T> takes any Comparator<? super T>, so the same class ranks players, colleges, quiz teams; a bounded method <T extends Comparable<? super T>> and List<? extends T> show bounded types and wildcards.
+Why Bisons is above Panthers: equal points (9) and goal difference (4), so the final tie-breaker (name A-Z) decides.
+Correctness argument: each key comparison is a total order; thenComparing applies the next key only when the previous is 0, so the result is antisymmetric, transitive and consistent for equal items. The subtraction comparator (b.points - a.points) overflows for extreme values (shown: returns a wrong sign) and breaks transitivity.
+ALTERNATIVES: Comparable = 1 sort, but one fixed order; three stable sorts = 3 x O(n log n) (same result, shown above) and more work/space; the Comparator chain is the most reusable.

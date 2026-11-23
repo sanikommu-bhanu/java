@@ -1,0 +1,49 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q4
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac ScannerStations.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: ScannerStations ----
+$ java ScannerStations
+=== Way 1: extends Thread ===
+state before start: NEW (NEW)
+right after start : TIMED_WAITING / isAlive=true
+after join        : TERMINATED / isAlive=false   total scanned = 1000 (expected 1000)
+=== Way 2: implements Runnable ===
+total scanned = 1000
+=== run() vs start() ===
+   body executed by thread: main
+   body executed by thread: station-probe
+=== 10 runs: order in which stations finish (not deterministic) ===
+run 1: [S1, S4, S2, S3]
+run 2: [S4, S3, S1, S2]
+run 3: [S3, S1, S4, S2]
+run 4: [S1, S2, S4, S3]
+run 5: [S2, S3, S1, S4]
+run 6: [S2, S1, S3, S4]
+run 7: [S3, S4, S1, S2]
+run 8: [S3, S1, S4, S2]
+run 9: [S4, S2, S1, S3]
+run 10: [S4, S3, S2, S1]
+=== priorities (S4 = MAX, S1 = MIN) : 5 runs ===
+run 1: [S4, S2, S1, S3]
+run 2: [S2, S4, S1, S3]
+run 3: [S3, S1, S4, S2]
+run 4: [S1, S4, S3, S2]
+run 5: [S2, S4, S3, S1]
+(priority is only a hint to the OS scheduler; with sleeping threads it does not decide the order)
+=== Alternative: ExecutorService, fixed pool of 2 threads, 4 stations ===
+   station E1 ran on pool-1-thread-1
+   station E2 ran on pool-1-thread-2
+   station E4 ran on pool-1-thread-2
+   station E3 ran on pool-1-thread-1
+total = 1000, elapsed 173 ms (~ 4 stations / 2 threads = 2 batches)
+=== daemon thread: main() ends first ===
+main() ending now; daemon alive=true, isDaemon=true -> JVM exits without waiting for it
+
+---- NOTES / ANSWERS ----
+STUDENT A: extending Thread is simple but uses up the single inheritance slot; Runnable separates the task from the thread and works with executors (preferred). run() called directly executes on the main thread (shown: 'main'), start() creates a new thread (shown: 'station-probe'). Life cycle: NEW -> RUNNABLE -> TIMED_WAITING (sleep) -> TERMINATED; join() makes main wait until every station is TERMINATED, so the total is printed after all finish.
+STUDENT B: 10 runs gave different finish orders; priorities did not impose an order (they are only hints to the scheduler); a daemon thread is killed when main ends (the 'DAEMON FINISHED' line never appears).
+JOINT: the scheduler decides interleaving, so a correct program must not rely on order (use join/locks).
+ALTERNATIVE (fixed pool of p threads): n tasks finish in about n/p rounds; memory = p thread stacks instead of one thread per station.

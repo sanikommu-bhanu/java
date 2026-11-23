@@ -1,0 +1,22 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task07
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Task07.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Task07 ----
+$ java Task07
+TwoWheeler[TN01A1] fee(130 min) = Rs 30.0
+Car[TN02B2] fee(130 min) = Rs 90.0
+ElectricCar[TN03C3] fee(130 min) = Rs 110.0
+Bus[TN04D4] fee(130 min) = Rs 240.0
+HashSet size after adding 3 vehicles with the same regNo: 1
+equals(): true, hashCodes equal: true
+Overriding rules: same signature, return type same/covariant, access same or wider, @Override makes the compiler check it.
+Alternative (switch on type field): time O(1) with k cases (jump table) or O(k) with if-chain; adding a type edits Vehicle + every switch.
+
+---- NOTES / ANSWERS ----
+calculateFee() is overridden where behaviour differs (ElectricCar adds a service fee); ratePerHour() is overridden by every concrete class. @Override makes the compiler verify signature/return type/access.
+final: final regNo (identity never changes), final getRegNo() (cannot be overridden), final class Bus (cannot be extended).
+equals/hashCode use only regNo, so two Vehicle objects with the same registration are equal and share a hash code (HashSet size 1 above).
+ALTERNATIVE (switch on a type field): O(1) per fee with a jump table (O(k) with if-chains), but a new type changes Vehicle and every switch (many classes), overriding changes 0 existing classes.

@@ -1,0 +1,21 @@
+TASK A4 - What should be serialized?
+
+A4.1 transient decisions
+  Resident.name, Resident.regNo ........ persist (identity data)
+  Resident.password .................... transient: secrets must never be written to a file; after loading it is null and must be re-entered
+  Resident.connection (Connection) ..... transient (and not Serializable at all): a live socket/DB session cannot be saved; without 'transient'
+                                         writeObject throws NotSerializableException
+  Hostel -> List<Room> -> List<Resident>: serialization walks the WHOLE object graph from Hostel; every reachable object must implement Serializable
+  (shared references are written once and restored as ONE shared object).
+
+ALGORITHM Save(hostel, file)
+  OPEN ObjectOutputStream(BufferedOutputStream(FileOutputStream(file)))
+  out.writeObject(hostel)           // writes hostel, its rooms, their residents, skipping transient fields
+ALGORITHM Load(file)
+  OPEN ObjectInputStream(...) ; hostel <- (Hostel) in.readObject()    // constructors of Serializable classes are NOT run; transient fields get defaults (null/0)
+
+A4.2 versioning
+  Old file written by Resident WITHOUT phone. New class has phone.
+   - NO explicit serialVersionUID: the JVM computes the UID from the class shape; adding a field changes it -> InvalidClassException (local class incompatible)
+   - explicit 'private static final long serialVersionUID = 1L' kept the same: the old file loads; the new field phone gets its default value null
+   Rule: declare serialVersionUID explicitly; change it only for incompatible changes.

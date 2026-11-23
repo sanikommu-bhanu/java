@@ -1,0 +1,30 @@
+==============================================================================
+OUTPUT FILE - Assignment4_CO4/Task6
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac EventRegistrationApp.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: EventRegistrationApp service demo (headless, in-memory DAO) ----
+$ java -Djava.awt.headless=true EventRegistrationApp
+normal: registered 192311001 for Dance
+normal: registered 192311002 for Music
+DUPLICATE: REJECTED - 192311001 is already registered for Dance
+invalid reg no: REJECTED - Register number must be 9 digits
+invalid name: REJECTED - Name is required
+same student, other event: registered 192311001 for Music
+Filter Dance: [Registration[studentReg=192311001, studentName=Arun, event=Dance]]
+All: [Registration[studentReg=192311001, studentName=Arun, event=Dance], Registration[studentReg=192311002, studentName=Divya, event=Music], Registration[studentReg=192311001, studentName=Arun, event=Music]]
+Paged loading (LIMIT 100) keeps memory O(page) and the window responsive; loading 100,000 rows at once = O(n) memory and a long wait.
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE GUI + DATABASE SESSION (needs MySQL: run schema.sql first, add the MySQL connector JAR to the classpath):
+  Register 192311004 / Kiran / Quiz  -> status "Registered 192311004", table shows 4 rows
+  Register 192311001 / Arun / Dance again -> warning dialog "192311001 is already registered for Dance"
+  Register 123 / X / Quiz            -> warning dialog "Register number must be 9 digits"
+  Filter by Dance                    -> table shows 2 rows, status "2 rows (page 1)"
+  File > Export CSV                  -> file chooser, status "Exported 2 rows"
+
+---- NOTES / ANSWERS ----
+Requirements, screens/flow, design decisions, class diagram (UI -> Service -> DAO) and pseudocode are in the header comment of EventRegistrationApp.java; schema.sql creates the table with a UNIQUE (student_reg, event_name) key as the database-level duplicate guard.
+Demonstrated above (service layer with the in-memory DAO): normal, invalid and duplicate registrations. The Swing screens and the MySQL DAO need a desktop and a MySQL server: run on your machine for screenshots.
+ALTERNATIVE (load all 100,000 rows at once): O(n) memory and a long wait vs one page of 100 rows via LIMIT/OFFSET in a SwingWorker (O(page) memory, window stays responsive).

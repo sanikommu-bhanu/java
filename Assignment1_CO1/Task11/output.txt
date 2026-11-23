@@ -1,0 +1,33 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task11
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac ParkingSystem.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: ParkingSystem ----
+$ java ParkingSystem
+ID   Test                                                 Expected / Actual / Result
+T1   Two-wheeler 130 min (3 h x 10)                       expected=30.0                         actual=30.0                         PASS
+T2   Car 130 min (3 h x 30)                               expected=90.0                         actual=90.0                         PASS
+T3   EV 130 min + 10 kWh (90 + 120)                       expected=210.0                        actual=210.0                        PASS
+T4   Student with monthly pass parks free                 expected=0.0                          actual=0.0                          PASS
+T5   Zero-minute stay                                     expected=0.0                          actual=0.0                          PASS
+T6   Exactly 60 min (slab boundary) = 1 h                 expected=30.0                         actual=30.0                         PASS
+T7   61 min = 2 started hours                             expected=60.0                         actual=60.0                         PASS
+T8   600 min capped at daily maximum (8 x 30)             expected=240.0                        actual=240.0                        PASS
+T9   Exactly 1440 min = one full day                      expected=240.0                        actual=240.0                        PASS
+T10  Last free slot is allocated                          expected=accepted                     actual=accepted                     PASS
+T11  Facility full after last slot                        expected=IllegalStateException: Facility full actual=IllegalStateException: Facility full PASS
+T12  Unknown vehicle type BUS                             expected=IllegalArgumentException: Unknown vehicle type: BUS actual=IllegalArgumentException: Unknown vehicle type: BUS PASS
+T13  Duplicate registration number                        expected=IllegalArgumentException: Duplicate registration number: D1 actual=IllegalArgumentException: Duplicate registration number: D1 PASS
+T14  Release invalid slot (9,9)                           expected=false                        actual=false                        PASS
+T15  Exit of vehicle never parked                         expected=NoSuchElementException       actual=NoSuchElementException       PASS
+Hand calculation: 30 + 90 + 210 + 0 + 60 + 240 = 630
+T16  Total collection for the day                         expected=630.0                        actual=630.0                        PASS
+Passed 16 / 16  -> ALL TESTS PASSED
+
+---- NOTES / ANSWERS ----
+All 16 tests pass, including boundary (0 min, exactly 60 min, 61 min, daily maximum, last free slot) and invalid cases (unknown type, duplicate registration, invalid slot, exit of a vehicle never parked).
+Hand calculation of the day: 30 + 90 + 210 + 0 + 60 + 240 = 630 = program output.
+Evaluation: encapsulation (private fields, validation), inheritance (Car -> ElectricCar), polymorphism (calculateFee through Vehicle references), abstraction (abstract Vehicle, Chargeable). Limitation: Vehicle.create() uses a switch, so a new type edits that class (fixed in Task 12 with a registry).
+ALTERNATIVE storage of active tickets: array scan on exit O(n); ArrayList search O(n); HashMap<regNo,Ticket> O(1) average (used here) at the cost of ~32-48 bytes extra per entry.

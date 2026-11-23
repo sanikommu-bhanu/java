@@ -1,0 +1,28 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q6
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Triage.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Triage ----
+$ java Triage
+Meena(S1) Kumar(S1) Lata(S2) Ravi(S3) John(S3) Asha(S5)
+
+---- PROGRAM OUTPUT: TriageExperiments (extra: hand check, growth, starvation) ----
+$ java TriageExperiments
+println(queue) (heap array order, NOT treatment order): [Meena(S1), Kumar(S1), Lata(S2), Dev(S4), Ravi(S3), John(S3), Omar(S3), Asha(S5)]
+Treatment order (poll): Meena(S1) Kumar(S1) Lata(S2) Ravi(S3) John(S3) Omar(S3) Dev(S4) Asha(S5)
+Matches hand-worked order Meena, Kumar, Lata, Ravi, John, Omar, Dev, Asha ? true
+n=   10,000  add:    3029 ns/op   poll:    1426 ns/op
+n=  100,000  add:     674 ns/op   poll:     338 ns/op
+n=1,000,000  add:     303 ns/op   poll:     350 ns/op
+5,000 patients/day = ~0.06 patients per second -> a PriorityQueue handles millions per second: the design easily serves a city hospital.
+Starvation demo: one S5 patient arrives first, then S1 patients keep arriving (one per tick). Plain rule serves S5 last;
+With aging rule (W=3) Asha is served at position 12 of 21 instead of 21.
+
+---- NOTES / ANSWERS ----
+A plain queue is FIFO and ignores severity. PriorityQueue with comparator (severity, then arrival counter) serves lowest severity first; the arrival counter keeps patients of equal severity in arrival order.
+Printing the PriorityQueue shows the internal heap array order, not the treatment order (shown above); poll() gives the correct order and matches the hand-worked order.
+Predicted add/poll O(log n); measured ns/op stays small as n grows 100x (the first row includes JIT warm-up). Starvation: a severity-5 patient waits forever while severe cases keep arriving; fair rule: score = arrival + severity x W (aging) -> Asha served 12th of 21 instead of last.
+Deployment: 5,000 patients/day is a trivial load for a PriorityQueue (millions of operations/second).
+ALTERNATIVES: sorted LinkedList O(n) admit, O(1) serve; array of 5 FIFO queues O(1) admit, O(1) serve (5 checks) - best when severities are few; all O(n) space.

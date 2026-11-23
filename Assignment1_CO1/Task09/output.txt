@@ -1,0 +1,20 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task09
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Task09.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Task09 ----
+$ java Task09
+Receipt: Rs 210.0
+Charging with GST: 141.6
+Valid kWh 150? false, 10? true
+Same object seen as Payable/Chargeable/Vehicle: true true
+Abstract class chosen for Vehicle (shared state + constructor); interfaces for capabilities that unrelated classes can share.
+If Vehicle were an interface: no instance fields/constructor; if Chargeable were an abstract class: EV could not also extend Car.
+Method-call cost is the same (invokevirtual vs invokeinterface, both ~O(1)); interfaces add no per-object space.
+
+---- NOTES / ANSWERS ----
+Abstract class Vehicle: holds state (regNo) + constructor + common code, abstract ratePerHour() says WHAT each subclass must provide. Interfaces Chargeable/Payable: capabilities that unrelated classes can have; ElectricCar gets two interfaces (multiple behaviour).
+Interface default method chargingFeeWithGst() shares code; static method validKwh() is a utility.
+ALTERNATIVE: Vehicle as an interface loses constructors and instance state; Chargeable as an abstract class would stop ElectricCar extending Car (single class inheritance). Call cost and per-object space are essentially identical.

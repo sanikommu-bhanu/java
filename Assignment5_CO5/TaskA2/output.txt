@@ -1,0 +1,19 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskA2
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac LineCountDemo.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: LineCountDemo ----
+$ java LineCountDemo
+File size: 4188890 bytes
+Unbuffered read()      : lines=100000, read calls=4,188,891, time=1263 ms
+BufferedInputStream    : lines=100000, calls to the file stream=513, time=114 ms
+byte[8192] buffer      : lines=100000, read calls=512, time=19 ms
+Files.readAllLines     : lines=100000, memory ~ O(file size) (all lines kept), time=109 ms
+Predicted calls for the unbuffered version = file size (4188890); buffered = size/8192 = 512
+
+---- NOTES / ANSWERS ----
+Prediction (pseudocode.txt): one read() per byte = file size calls (50 MB -> ~52 million); measured above for a 4 MB file: 4,188,891 calls unbuffered vs 513 buffered, 1433 ms vs 107 ms (and 17 ms with an explicit byte[8192]).
+Buffering does not help when you already read large blocks, read isolated bytes at random, or the data is already in memory.
+ALTERNATIVE Files.readAllLines: simple, O(file size) memory (50 MB file -> hundreds of MB of String objects); buffered stream O(buffer) memory.

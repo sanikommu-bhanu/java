@@ -1,0 +1,35 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskB2
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Adversarial.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Adversarial ----
+$ java Adversarial
+=== Part 1: damaged bus-pass lines ===
+'P1,192311001,Arun,12,4500.0'      -> ACCEPTED: P1
+'P2,192311002,Divya,7'             -> REJECTED: expected 5 fields, found 4
+'P3,192311003,Kiran,5,abc'         -> REJECTED: amount 'abc' is not numeric
+''                                 -> REJECTED: empty line
+'P5,192311005,Meena,x,100'         -> REJECTED: route 'x' is not an integer
+'P6,192311006,Ravi,3,-50'          -> REJECTED: negative amount
+Reveals: a field-count check alone (B1) is NOT enough - non-numeric/negative values pass it; validate types and ranges too.
+=== Part 2: login injection ===
+(MySQL test database not reachable here: SQLException) - showing the statements that would be sent:
+unsafe: SELECT * FROM users WHERE id='arun' AND pwd='wrong'
+unsafe: SELECT * FROM users WHERE id='admin'--' AND pwd='anything'
+unsafe: SELECT * FROM users WHERE id='nobody' AND pwd='' OR '1'='1'
+safe  : SELECT 1 FROM users WHERE id = ? AND pwd = ?   with the three values bound as plain strings
+Escaping quotes / regex validation instead of PreparedStatement is weaker: every dialect and encoding has its own tricks, one missed character = injection;
+validation costs O(length) per query on top, while PreparedStatement needs no inspection of the values at all.
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE OUTPUT of Part 2 WITH the MySQL test database (schema.sql loaded):
+id=arun         pwd=wrong          unsafe -> false | prepared -> false
+id=admin'--     pwd=anything       unsafe -> true  | prepared -> false     <-- injection succeeds only in the unsafe version
+id=nobody       pwd=' OR '1'='1    unsafe -> true  | prepared -> false
+
+---- NOTES / ANSWERS ----
+Part 1 (file store) ran for real: wrong field count, non-numeric amount, empty line, non-integer route and negative amount are all rejected; this reveals that a field-count check alone (Task B1) is not enough.
+Part 2 needs MySQL (schema.sql): without it the program prints the SQL it would send. Expected results WITH the database: unsafe login for 'admin'--' and for "' OR '1'='1" returns true (login accepted without a valid password); the PreparedStatement version returns false for all three.
+Escaping/regex validation is weaker (dialect- and encoding-specific, one missed case = injection) and adds O(length) validation per query; PreparedStatement needs none.

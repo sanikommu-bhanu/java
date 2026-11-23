@@ -1,0 +1,27 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task01
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Task01.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Task01 ----
+$ java Task01
+--- Business rule R1: a slot cannot hold two vehicles ---
+Rejected -> R1 violated: slot 0-1 already holds TN01AB1111
+--- Business rule R2: ticket numbers are never reused ---
+Tickets issued: 1001, 1002, 1003
+--- Search by registration number, n = 200000 (both O(n)) ---
+Parallel arrays : index 199999, avg 680388 ns
+Vehicle objects : TN199999, avg 835749 ns
+Adding a new attribute: parallel arrays -> new array + edit every method that shifts/copies arrays;
+                        objects        -> add ONE field to Vehicle, existing code unchanged.
+Space per vehicle: parallel = 3 array slots (~4+4+8 B) ; object = 12 B header + fields (~32 B) + 1 reference.
+
+---- NOTES / ANSWERS ----
+CANDIDATE CLASSES (each justified): Vehicle (+TwoWheeler/Car/ElectricCar) holds identity and pricing rate; ParkingSlot knows whether it is free;
+ParkingFacility owns floors/slots and decides allocation; ParkingTicket records entry (unique number, time, slot); User/MonthlyPass decide free parking.
+Verbs -> methods: park/allocate, issueTicket, release, calculateFee, isFree.
+Business rules: R1 slot holds one vehicle, R2 ticket numbers never reused, R3 one vehicle cannot be parked twice, R4 pass holders free, R5 exit >= entry, R6 charging only for EVs.
+Assumptions: minutes are the time unit, every started hour is billed, slot numbers start at 0, ticket numbers start at 1001.
+ALTERNATIVE (parallel String arrays): search by regNo is O(n) in both designs (measured above, similar); objects win on adding an attribute (1 field vs a new array and every shifting/copy code) and type safety (Strings hold anything).
+Space per vehicle: parallel arrays ~ 3 slots (4+4+8 B); object ~ 12 B header + fields + 1 reference (more per item, but a HashMap<regNo,Vehicle> gives O(1) lookup).

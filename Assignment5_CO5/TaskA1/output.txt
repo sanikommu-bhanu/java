@@ -1,0 +1,26 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskA1
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac RecordLayouts.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: RecordLayouts ----
+$ java RecordLayouts
+--- text file content ---
+P1001,192311001,Arun,12,Main Gate,2026-12-31,4500.0
+P1002,192311002,Smith\, John,7,Library,2026-12-31,3800.0
+P1003,BROKEN
+find P1002 -> [P1002, 192311002, Smith, John, 7, Library, 2026-12-31, 3800.0]
+   LOG damaged line 3: fields=2
+find P1003 (damaged) -> null
+   LOG damaged line 3: fields=2
+find P9999 -> null
+find in missing file -> null
+binary record: P1001 192311001 Arun route 12 Main Gate 2026-12-31 Rs4500.0
+binary record: P1002 192311002 Smith, John route 7 Library 2026-12-31 Rs3800.0
+text bytes=122, binary bytes=115
+RandomAccessFile: record 777 read with ONE seek (O(1)) -> P0777; file size 64000 bytes, padding wasted per record is up to 31 bytes
+
+---- NOTES / ANSWERS ----
+Record layouts, three operations (pseudocode.txt) and damaged-data design are in pseudocode.txt. Demo above: delimiter inside a name is escaped, damaged line skipped with a log, missing file returns null, binary layout is smaller and needs no escaping.
+ALTERNATIVE (RandomAccessFile, fixed-length records): find by position = one seek, O(1) (needs the record NUMBER; searching by pass ID still needs an index); wasted padding up to ~31 bytes per record.

@@ -1,0 +1,22 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task05
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Task05.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Task05 ----
+$ java Task05
+[static block] Facility class loaded
+static counter  -> north: 1, south: 2, north: 3
+instance counter-> north: 1001, south: 1001  (two different tickets numbered 1001 would exist - duplicates!)
+Total occupancy (static method, no object): 3, MAX_HOURS=8
+After modify(): t.no = 999 (state changed, reference not replaced)
+Before GC, ticket reachable: true
+After no strong reference + GC hint, ticket collected: true
+Space of counter: static = O(1) total; instance = O(k) for k facilities; tickets O(n) either way.
+
+---- NOTES / ANSWERS ----
+static ticket counter: one number series for the whole university; an instance counter would give north gate 1001 and south gate 1001 (duplicates, shown above).
+static method needs no object (getTotalOccupancy); the static block runs once when the class is loaded.
+Object life cycle: a ticket becomes eligible for garbage collection when no reference reaches it (WeakReference demo above). Java is pass-by-value: the REFERENCE is copied, so a method can change the object's state but cannot make the caller's variable point elsewhere.
+Space of the counter: static O(1); instance counter O(k) for k facilities (and a shared static/AtomicInteger or a TicketService is needed for global uniqueness).

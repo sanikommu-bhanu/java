@@ -1,0 +1,27 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task02
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Task02.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: Task02 ----
+$ java Task02
+Vehicle TN01AB1234, 130 min, rate 30.0/h
+minutes/60 * rate          = 60.0   <-- WRONG (integer division)
+(double)(minutes/60)*rate  = 60.0   <-- WRONG (cast too late)
+ceil(minutes/60)*rate      = 60.0   <-- WRONG (division already truncated)
+(minutes+59)/60 * rate     = 90.0   <-- CORRECT (used in design)
+ceil(minutes/60.0) * rate  = 90.0   <-- CORRECT (alternative)
+int overflow check: (int) entryEpochMs = -807049216  vs long = 1700000000000
+double precision: 0.1 + 0.2 = 0.30000000000000004  -> keep money in paise (long) when exactness matters
+Jagged array lengths: 20, 35, 50
+Flat array size 105; floor*slotsPerFloor formula would be wrong here, offset[1]+34 = 54
+ArrayList<String[]> now has 4 floors (grown at run time)
+Locate slot: jagged O(1), flat O(1) (+offset table), ArrayList O(1) (+1 indirection).
+Space: jagged = F array objects; flat = 1 array + F+1 offsets; ArrayList = F arrays + list overhead.
+
+---- NOTES / ANSWERS ----
+DATA TYPES: slot number int (0..n), vehicle number String, entry time long (epoch ms/minutes - int overflows, see output), duration int minutes, fee double (or long paise for exact money).
+FLOORS: jagged array String[floor][] because floors have different slot counts; no wasted cells. Input: Scanner (interactive) or args[] (batch).
+CASTING RISK: 130 minutes / 60 = 2 in integer division -> fee 60 instead of 90. Casting the RESULT ((double)(minutes/60)) is too late. Design: hours = (minutes+59)/60 (integer ceiling) or Math.ceil(minutes/60.0).
+ALTERNATIVES: flat array needs an offset table for uneven floors (index = offset[f]+s), locate O(1), space 1 array + F+1 ints; ArrayList<String[]> allows adding floors at run time, O(1) locate with one extra indirection; jagged: O(1), F arrays.

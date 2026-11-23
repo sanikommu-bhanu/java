@@ -1,0 +1,26 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q7
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac ResultProcessor.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: ResultProcessor ----
+$ java ResultProcessor
+Hand-checked set of 10 files: expected success=6 (files 1,2,5,6,7,9), corrupt=3 (files 3,4,8), missing=1 (file 0)
+Program summary            : success=6 corrupt=3 missing=1 other=0  -> MATCH
+10,000 files: expected missing=100, corrupt=102, success=9798
+threads      success   corrupt   missing     other  time (ms)
+1               9798       102       100         0       2171   summary correct
+2               9798       102       100         0        950   summary correct
+4               9798       102       100         0        461   summary correct
+8               9798       102       100         0        261   summary correct
+parallelStream (common pool, 1 worker thread(s) on this machine): ok=9798 failed=202 in 908 ms
+Thread-per-file would need 10,000 threads x ~1 MB stack = ~10 GB of address space: rejected. Pool of p threads uses p x stack only.
+Limitation: results live in memory; a crash mid-run loses them (a checkpoint file/DB would fix this).
+
+---- NOTES / ANSWERS ----
+Stage 1: tasks = one per file (independent); shared data = results/failure maps. Failures: missing file (NoSuchFileException), corrupt content (BadScoreException). Requirements are stated in the header of ResultProcessor.java.
+Stage 2 design: ExecutorService + Callable<Double> + Future; ConcurrentHashMap for shared results (no global lock); future.get() throws ExecutionException whose cause classifies the failure, so one bad file never stops the run.
+Stage 3: hand-checked 10-file set matches (6 ok / 3 corrupt / 1 missing); 10,000 files give 9,798 / 102 / 100 for every pool size. Time: 1 thread ~2.1 s, 2 ~0.9 s, 4 ~0.5 s, 8 ~0.24 s (the simulated per-file wait overlaps).
+Stage 4: recommended pool size = as many threads as the waiting/IO allows up to a point; beyond the number of cores, CPU-bound work gains nothing and adds scheduling cost. Limitation: results are only in memory.
+ALTERNATIVES: parallelStream uses the common pool (1 worker here) and offers less control over failures/pool size; one thread per file = 10,000 stacks (~10 GB address space).

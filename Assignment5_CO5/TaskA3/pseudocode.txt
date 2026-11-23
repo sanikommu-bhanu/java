@@ -1,0 +1,28 @@
+TASK A3 - Data-access pattern
+
+A3.1 COMMON STEPS in StudentDB, CourseDB, MarksDB:  open connection -> build SQL -> create statement -> bind parameters -> execute
+     -> map each ResultSet row to an object -> close ResultSet/Statement/Connection (and handle SQLException).
+     DIFFERENT parts: the SQL text, the parameters, and the row-to-object mapping.
+
+A3.2 INTERFACE
+INTERFACE Dao<T, K>
+    insert(T entity)            RETURNS void
+    findById(K id)              RETURNS T or NULL
+    findAll()                   RETURNS List<T>
+    update(T entity)            RETURNS boolean
+    delete(K id)                RETURNS boolean
+END INTERFACE
+
+CLASS StudentDao IMPLEMENTS Dao<Student, String>
+    findById(regNo):
+        TRY (con <- dataSource.getConnection(); ps <- con.prepareStatement("SELECT reg_no,name,dept FROM student WHERE reg_no = ?"))
+            ps.setString(1, regNo)
+            TRY (rs <- ps.executeQuery()) IF rs.next() THEN RETURN map(rs) ELSE RETURN NULL
+        CATCH SQLException -> wrap and throw DataAccessException
+END CLASS   (the shared 'open/execute/map/close' steps move into one helper; only SQL + map(rs) remain per entity)
+
+A3.3 OBJECT-TABLE MAPPING
+   Student.regNo  (String)  <-> student.reg_no   VARCHAR(9)   PRIMARY KEY
+   Student.name   (String)  <-> student.name     VARCHAR(60)  NOT NULL
+   Student.dept   (String)  <-> student.dept     VARCHAR(30)
+   Student.cgpa   (double)  <-> student.cgpa     DECIMAL(3,2)

@@ -1,0 +1,20 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task03
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac ParkingFacility.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: ParkingFacility ----
+$ java ParkingFacility
+[0, 0]
+[0, 1]
+[1, 0]
+null
+true false false
+[0, 1]
+
+---- NOTES / ANSWERS ----
+Output matches the expected output. Allocation stops at the first free slot (return inside the loops); NULL is returned only after every slot was checked (facility full).
+release() validates floor, then slot, then 'already free' before changing state, so invalid calls return false without side effects.
+ALTERNATIVE (free-count per floor + stack of free slots): allocate = O(1) (pop) instead of O(F*S) worst case; release = O(1) (push). Extra space O(F*S) for the stack + O(F) counts.
+Scan version: allocate O(F*S), release O(1), extra space O(1).

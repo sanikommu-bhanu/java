@@ -1,0 +1,38 @@
+TASK A1 - Bus-pass records (SIMATS pseudocode style)
+
+RECORD LAYOUTS
+ (a) Delimited text, one pass per line, UTF-8, delimiter ','
+     passId,regNo,name,routeNo,stop,validDate,amount
+     A name or stop containing ',' or '\' is ESCAPED: ',' -> '\,'  and  '\' -> '\\' (reader reverses it)
+ (b) Binary (DataOutputStream), fixed field order:
+     writeUTF(passId) | writeUTF(regNo) | writeUTF(name) | writeInt(routeNo) | writeUTF(stop) | writeLong(validDateEpochDay) | writeDouble(amount)
+     writeUTF stores a 2-byte length first, so no delimiter problem exists.
+
+ALGORITHM AddPass(record)                       // streams: FileWriter wrapped in BufferedWriter (append mode)
+  INPUT record; OUTPUT file with one more line
+  line <- escape(record fields) joined by ','
+  OPEN BufferedWriter(FileWriter(file, append = TRUE))
+  WRITE line, newline ; CLOSE (try-with-resources)
+END ALGORITHM
+
+ALGORITHM FindPass(passId)                      // BufferedReader(FileReader): reads big blocks, gives readLine()
+  IF file does not exist THEN RETURN NOT_FOUND
+  FOR EACH line IN file DO
+      fields <- split(line, unescaped ',')
+      IF count(fields) <> 7 OR amount not numeric THEN LOG "damaged line n"; CONTINUE
+      IF fields[0] = passId THEN RETURN fields
+  END FOR
+  RETURN NOT_FOUND
+END ALGORITHM
+
+ALGORITHM ListByRoute(route)
+  result <- empty list
+  FOR EACH valid line DO IF routeNo = route THEN append to result END FOR
+  RETURN result
+END ALGORITHM
+
+DAMAGED DATA
+  damaged line      : field count / numeric checks fail -> skip + log line number, processing continues
+  missing file      : FindPass/List return empty; AddPass creates it (CREATE option)
+  power failure     : write to 'passes.tmp', flush + close, then atomically MOVE over 'passes.csv'; a half-written line has no final newline
+                      or wrong field count and is rejected by the damaged-line check.

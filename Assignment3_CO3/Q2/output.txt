@@ -1,0 +1,38 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q2
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac StorageDemo.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: StorageDemo ----
+$ java StorageDemo
+Saved answer01.pdf
+Error: Could not store answer02.pdf
+Cause: Disk quota exceeded
+
+---- PROGRAM OUTPUT: ExamPortalDemo (extra: three layers, chaining) ----
+$ java ExamPortalDemo
+1 Student sees: Exam window closed
+2 Student sees: Divya is not registered for this course
+3 Student sees: File 9000 KB exceeds the 5000 KB limit
+4 Student sees: Your answer could not be saved, please try again later. (log: SubmissionStorageException: Could not store d.pdf | cause: java.io.IOException: Disk quota exceeded)
+Saved e.pdf
+5 OK: submission accepted
+--- full chained stack trace (storage -> service -> controller) ---
+SubmissionStorageException: Could not store d.pdf
+	at Storage.save(StorageDemo.java:20)
+	at SubmissionService.submit(StorageDemo.java:50)
+	at ExamPortalDemo.main(StorageDemo.java:71)
+Caused by: java.io.IOException: Disk quota exceeded
+	at Storage.save(StorageDemo.java:15)
+	... 2 more
+--- same failure re-thrown WITHOUT the cause ---
+getCause() = null  -> 'Disk quota exceeded' and the original stack trace are LOST
+Without cause: e.getCause() is null, so e.getCause().getMessage() throws NullPointerException
+NullPointerException caught
+
+---- NOTES / ANSWERS ----
+Output equals the expected output. Without passing the IOException into the constructor, getCause() is null and e.getCause().getMessage() throws NullPointerException (shown in the extra demo).
+Hierarchy: ExamException <- ExamClosedException, NotRegisteredException, FileTooLargeException, SubmissionStorageException (all checked: the caller can recover and must decide). Propagation: Storage (IOException wrapped) -> Service -> Controller, which translates it into a student-friendly message; the full chain is kept for the log.
+JOINT: a meaningful SubmissionStorageException hides storage details from the UI, lets the controller react per type and keeps the original IOException as the cause.
+ALTERNATIVE (unchecked): no 'throws' clauses or forced try/catch, easier to forget handling; stack trace capture costs O(depth) time and space per exception either way; chaining keeps the cause object (and its trace) alive as long as the outer exception.

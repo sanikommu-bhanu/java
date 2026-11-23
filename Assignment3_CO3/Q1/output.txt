@@ -1,0 +1,41 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q1
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac AtmWithdrawal.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: AtmWithdrawal ----
+$ java AtmWithdrawal
+Test 1 (valid withdrawal): input amount='2000'
+   [finally] card returned for account 1001 -> DISPENSED 2000, new balance 3000
+Test 2 (letters typed): input amount='abc'
+   [finally] card returned for account 1001 -> CAUGHT NumberFormatException: For input string: "abc"
+Test 3 (negative amount): input amount='-500'
+   [finally] card returned for account 1001 -> CAUGHT IllegalArgumentException: Amount cannot be negative
+Test 4 (more than balance): input amount='999999'
+   [finally] card returned for account 1001 -> CAUGHT InsufficientFundsException: Balance 3000 < requested 999999
+Test 5 (card file missing): input amount='100'
+   [finally] card returned for account 1001 -> CAUGHT IOException (FileNotFoundException): card reader unavailable
+--- Stack trace of an exception that is not handled in the calling methods (printed by the top level) ---
+java.lang.NumberFormatException: For input string: "12x"
+	at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)
+	at java.base/java.lang.Integer.parseInt(Integer.java:662)
+	at java.base/java.lang.Integer.parseInt(Integer.java:778)
+	at AtmWithdrawal.level3(AtmWithdrawal.java:45)
+	at AtmWithdrawal.level2(AtmWithdrawal.java:46)
+	at AtmWithdrawal.level1(AtmWithdrawal.java:47)
+	at AtmWithdrawal.main(AtmWithdrawal.java:66)
+(read bottom-up: main called level1, level1 called level2, level2 called level3, level3 called Integer.parseInt which threw)
+Per failing input: exception create+throw+catch ~ 577 ns (stack trace captured, O(depth) time/space); error-code check ~ 5 ns (O(1))
+
+---- Broader catch BEFORE narrower catch - javac result ----
+BadOrder.java:6: error: exception FileNotFoundException has already been caught
+    catch (FileNotFoundException e) { System.out.println("narrow"); }
+    ^
+1 error
+
+---- NOTES / ANSWERS ----
+STUDENT A (design): failure table is in the header comment of AtmWithdrawal.java. Catch order: narrowest first - NumberFormatException before IllegalArgumentException (its parent); IOException before Exception. finally guarantees the card is returned whether the withdrawal succeeds or fails.
+STUDENT B (tests): 5 inputs above, each hits a different catch; finally ran every time. The stack trace is read bottom-up (main -> level1 -> level2 -> level3 -> Integer.parseInt). A broader catch before a narrower one is a COMPILE ERROR (captured below).
+JOINT: catching everything with one catch (Exception e) is acceptable only at a top-level boundary that logs and shows a generic message; it loses the ability to react differently (retry for IO, re-prompt for bad input) and can hide bugs.
+ALTERNATIVE (error codes): same checks written as if-chains (more visible checks, callers can forget to test the code); creating+throwing an exception costs ~500 ns and captures a stack trace (O(depth) time/space), a code check ~5 ns (O(1)).

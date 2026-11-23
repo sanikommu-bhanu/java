@@ -1,0 +1,30 @@
+==============================================================================
+OUTPUT FILE - Assignment4_CO4/Task3
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac LibrarySearch.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: LayoutProbe (headless resize test) ----
+$ java -Djava.awt.headless=true LibrarySearch
+Window content size 640 x 420
+   search row : 640 x 35 at (0,23)
+   results    : 640 x 312 at (0,58)   <-- grows/shrinks with the window
+   button row : 640 x 35 at (0,370)
+   status     : 640 x 15 at (0,405)
+Window content size 900 x 700
+   search row : 900 x 35 at (0,23)
+   results    : 900 x 592 at (0,58)   <-- grows/shrinks with the window
+   button row : 900 x 35 at (0,650)
+   status     : 900 x 15 at (0,685)
+Window content size 420 x 300
+   search row : 420 x 35 at (0,23)
+   results    : 420 x 192 at (0,58)   <-- grows/shrinks with the window
+   button row : 420 x 35 at (0,250)
+   status     : 420 x 15 at (0,285)
+Observation: search row, button row and status keep their height at every size; only the results area changes (width = window width, height = window height - fixed rows).
+Alternatives: GridBagLayout = same behaviour with weights but more code/constraint objects; setLayout(null)+setBounds = nothing resizes automatically.
+Layout cost: nested BorderLayout/FlowLayout O(c) per container (c children); containers used here = 7 panels; GridBag adds one constraint object per child.
+
+---- NOTES / ANSWERS ----
+Layout choices and the nested container diagram are in the header comment of LibrarySearch.java. The 'screenshots at three sizes' are replaced by exact region bounds measured at 640x420, 900x700 and 420x300 (above): search row, button row and status keep their height; only the results area grows/shrinks. You may add real screenshots by running the program on a desktop.
+ALTERNATIVES: GridBagLayout gives the same result with weights but more constraint objects; null layout does not resize at all. Layout computation is O(c) per container; panels used: 7.

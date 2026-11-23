@@ -1,0 +1,36 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskA4
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac HostelSerialization.java   (compiled without errors)
+
+---- Serialization / serialVersionUID experiment (real runs, 4 class versions) ----
+[1] Version 1 (no phone, NO serialVersionUID) saves:
+saved 2 rooms, file 310 bytes
+Room 101: 2 residents
+   Arun/192311001 password=null connection=null (class has no phone field)
+   Divya/192311002 password=null connection=null (class has no phone field)
+Room 102: 0 residents
+
+[2] Version 2 (adds phone, still NO serialVersionUID) reads the old file:
+InvalidClassException: Resident; local class incompatible: stream classdesc serialVersionUID = -6520310791763047123, local class serialVersionUID = 7122057967319907553
+
+[3] Version 3 (no phone, serialVersionUID = 1L) saves:
+saved 2 rooms, file 310 bytes
+
+[4] Version 4 (adds phone, serialVersionUID = 1L) reads the old file from step 3:
+Room 101: 2 residents
+   Arun/192311001 password=null connection=null phone=null
+   Divya/192311002 password=null connection=null phone=null
+Room 102: 0 residents
+
+[5] Version 4 saves and loads its own file (phone persisted, password/connection transient):
+saved 2 rooms, file 337 bytes
+Room 101: 2 residents
+   Arun/192311001 password=null connection=null phone=9000000001
+   Divya/192311002 password=null connection=null phone=null
+Room 102: 0 residents
+
+---- NOTES / ANSWERS ----
+Transient: password and connection (secrets and live resources are never saved). The whole object graph Hostel -> Rooms -> Residents is written. Versioning experiment above (real runs): without an explicit serialVersionUID, adding 'phone' makes the old file fail with InvalidClassException; with serialVersionUID = 1L the old file loads and phone = null.
+ALTERNATIVE (CSV/JSON): bigger text files and slower than binary for large n, but adding a field is easy (extra column/key ignored or defaulted) and files are readable by other programs.

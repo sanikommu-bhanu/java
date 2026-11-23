@@ -1,0 +1,21 @@
+TASK A2 - Count lines in a 50 MB log
+
+A2.1 PREDICTION: FileInputStream.read() returns ONE byte per call and each call is a system call.
+   50 MB = 52,428,800 bytes -> about 52 million read() calls (+1 for end of file). Each costs hundreds of ns (user->kernel switch) -> tens of seconds.
+
+A2.2 REDESIGN
+ALGORITHM CountLinesBuffered(file)
+  count <- 0 ; buffer <- byte[8192]
+  OPEN FileInputStream(file)
+  REPEAT
+      n <- stream.read(buffer)            // one system call fills up to 8,192 bytes
+      FOR i <- 0 TO n - 1 DO IF buffer[i] = '\n' THEN count <- count + 1
+  UNTIL n = -1
+  RETURN count
+END ALGORITHM
+  (BufferedInputStream does the same internally.) System calls drop from 52,428,800 to ~6,400 (50 MB / 8 KB), a 8,192x reduction.
+
+A2.3 WHEN BUFFERING DOES NOT HELP
+  - the program already reads big blocks itself (read(byte[1 MB])): another buffer only adds a copy;
+  - random access reading single, widely separated bytes (each read must go to disk anyway);
+  - reading from a source that is already in memory (ByteArrayInputStream) or a very small file.

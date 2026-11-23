@@ -1,0 +1,29 @@
+TASK A5 - Correctness and safety
+
+A5.1 TRANSACTION (transfer Rs 500: hostel wallet -> canteen wallet)
+ALGORITHM Transfer(con, fromId, toId, amount)
+  oldAuto <- con.getAutoCommit()
+  con.setAutoCommit(FALSE)                          // start of the transaction
+  TRY
+      rows1 <- UPDATE wallet SET balance = balance - amount WHERE id = fromId AND balance >= amount
+      IF rows1 <> 1 THEN THROW InsufficientFunds
+      rows2 <- UPDATE wallet SET balance = balance + amount WHERE id = toId
+      IF rows2 <> 1 THEN THROW UnknownAccount
+      con.commit()                                  // both updates become permanent together
+  CATCH any exception
+      con.rollback()                                // undo the first update: money is never lost or created
+      RE-THROW
+  FINALLY
+      con.setAutoCommit(oldAuto)
+END ALGORITHM
+
+A5.2 INJECTION
+  Unsafe query: "SELECT * FROM users WHERE id='" + id + "' AND pwd='" + pwd + "'"
+  Input id = admin'--   (pwd anything) gives
+        SELECT * FROM users WHERE id='admin'--' AND pwd='x'      -> '--' starts a SQL comment, the password test disappears.
+  Input pwd = ' OR '1'='1  gives  ... AND pwd='' OR '1'='1'      -> condition is always true.
+  Safe redesign:
+        ps <- con.prepareStatement("SELECT 1 FROM users WHERE id = ? AND pwd_hash = ?")
+        ps.setString(1, id) ; ps.setString(2, hash(pwd))
+        rs <- ps.executeQuery() ; RETURN rs.next()
+  The SQL structure is sent to the database BEFORE the values; the values can never change the structure. (Store hashed passwords, never plain text.)

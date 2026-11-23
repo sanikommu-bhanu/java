@@ -1,0 +1,15 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskA3
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac DaoDemo.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: DaoDemo ----
+$ java DaoDemo
+findById(192311002) -> Student[regNo=192311002, name=Divya, dept=ECE]
+update -> true, now Student[regNo=192311002, name=Divya R, dept=ECE]
+delete(192311001) -> true, findAll -> [Student[regNo=192311002, name=Divya R, dept=ECE]]
+Swapping InMemoryStudentDao for StudentDao(JDBC) changes ONE line; renaming a column changes ONE class (StudentDao) instead of every GUI/service class.
+
+---- NOTES / ANSWERS ----
+Common pattern and the generic Dao<T,K> are in pseudocode.txt and DaoDemo.java (StudentDao for JDBC, InMemoryStudentDao runs here). ALTERNATIVE (SQL inside GUI/service classes): a column rename touches every class using it (N places) instead of one DAO; time/space per database operation is the same.

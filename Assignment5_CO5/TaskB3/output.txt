@@ -1,0 +1,26 @@
+==============================================================================
+OUTPUT FILE - Assignment5_CO5/TaskB3
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac PassLoader.java LoadBenchmark.java   (compiled without errors)
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE OUTPUT (ILLUSTRATIVE numbers - replace with your own run of LoadBenchmark on your MySQL server):
+Connected to MySQL 8.0.36
+  column 1: pass_id VARCHAR
+  column 2: reg_no VARCHAR
+  column 3: name VARCHAR
+  column 4: route_no INT
+  column 5: amount DOUBLE
+rows       Statement ms    PreparedStmt ms   Batch(1000) ms
+1000                1900               1500               120
+10000              19000              14500               650
+100000            190000             145000              4800
+transaction failed (NumberFormatException), rows left in table: 0
+auto-commit failed (NumberFormatException), rows left in table: 1500  <-- half-loaded data
+
+---- NOTES / ANSWERS ----
+PassLoader.java is the completed code (TODO 1-3). LoadBenchmark.java creates the table, verifies columns with ResultSetMetaData, times Statement vs PreparedStatement vs batch at 1,000 / 10,000 / 100,000 rows, and forces a failure half-way (amount 'abc') to show the transaction leaves 0 rows while auto-commit leaves the rows inserted before the failure.
+This environment has no MySQL server, so the numbers below are SAMPLE (illustrative) values; run LoadBenchmark on your machine and replace them with your own measurements.
+Trade-off: nightly import of 100,000 passes -> PreparedStatement batch inside one transaction (or LOAD DATA); a single pass at the counter -> one PreparedStatement.
+ALTERNATIVE (multi-row INSERT / LOAD DATA): fewer round trips; memory grows with the statement size (b rows) but LOAD DATA streams the file.

@@ -1,0 +1,33 @@
+==============================================================================
+OUTPUT FILE - Assignment4_CO4/Task1
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac FeeWindow.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: FeeServiceTest (headless run of FeeWindow.main) ----
+$ java -Djava.awt.headless=true FeeWindow
+pay(192311001, 4500) -> Receipt: 192311001 paid Rs 4500.00
+pay(, 4500) -> Invalid input: Register number must be 9 digits
+pay(192311001, abc) -> Invalid input: Amount must be a number
+pay(192311001, -10) -> Invalid input: Amount must be greater than zero
+pay(19231, 100) -> Invalid input: Register number must be 9 digits
+pay(192311001, 0) -> Invalid input: Amount must be greater than zero
+repository failure -> PaymentException: Payment could not be recorded (cause: DB down)
+Rows saved by the fake repository: [192311001:4500.0]
+Last receipt: Receipt: 192311001 paid Rs 4500.00
+Dispatch alternative: one listener with an if-else chain = up to k comparisons per event, one object; one listener per button = O(1) dispatch, k small objects.
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE GUI SESSION (run FeeWindow on a desktop; console shows nothing, the status label shows):
+  click Pay with empty fields     -> status: Invalid input: Register number must be 9 digits
+  Reg No 192311001, Amount abc    -> status: Invalid input: Amount must be a number
+  Reg No 192311001, Amount 4500   -> status: Processing...   (window stays responsive)  then  Receipt: 192311001 paid Rs 4500.00
+  click Receipt                   -> status: Receipt: 192311001 paid Rs 4500.00
+  click Clear                     -> fields emptied, status: Cleared
+  click window close              -> worker thread shut down, window disposed
+
+---- NOTES / ANSWERS ----
+1.1 diagnosis: ten deficiencies are listed in the header comment of FeeWindow.java (UI+logic mixed, == string comparison, no validation, JDBC and sleep on the event-dispatch thread freezing the window, SQL injection, connection leak, unhandled checked exceptions, no user feedback, Receipt button clears the form, window cannot be closed).
+1.2 repair: FeeWindow (view) -> FeeService (validation + payment) -> FeeRepository (JDBC with PreparedStatement); one listener per button; payment runs on a worker thread and updates the label with EventQueue.invokeLater.
+1.3 defence: the service has no AWT code, so it is tested without a window or database (output above).
+ALTERNATIVE: one listener + if-chain = up to k comparisons per event; per-button listener / Action = O(1) dispatch, k small objects.

@@ -1,0 +1,25 @@
+==============================================================================
+OUTPUT FILE - Assignment4_CO4/Task5
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac Converter.java ConverterStyles.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: ConverterStyles (headless logic test) ----
+$ java -Djava.awt.headless=true ConverterStyles
+Headless: testing the shared conversion logic used by all four styles
+1000 INR to USD -> 12.00 USD
+1000 INR to EUR -> 11.00 EUR
+'abc'           -> Invalid amount
+''              -> Invalid amount
+Listener objects (space): a=1, b=2 -> 1 shared, c=2 (duplicated), d=1 lambda; method reference this::convert would also be 1 object.
+
+---- SAMPLE OUTPUT (this part cannot run in a headless / database-less sandbox) ----
+SAMPLE RUN (java Converter on a desktop):
+  amount 1000, USD, click Convert        -> label: 12.00 USD
+  amount 1000, EUR, press Enter in field -> label: 11.00 EUR
+  amount abc, click Convert              -> label: Invalid amount
+Screenshots to attach: a valid conversion and an invalid amount.
+
+---- NOTES / ANSWERS ----
+Converter.java is style (d) with TODO 1 (one lambda registered for the button and the Enter key) and TODO 2 (2 decimals or 'Invalid amount'). ConverterStyles.java contains the four styles, each already including the Enter key + dialog change; the change effort per style and the comparison are in its header comment. For a large application: named inner classes / separate Action classes.
+ALTERNATIVE (method reference or one shared Action): one listener object shared by button, menu item and shortcut; adding a new trigger = one line.

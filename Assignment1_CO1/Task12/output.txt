@@ -1,0 +1,34 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task12
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac DesignChallenge.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: DesignChallenge ----
+$ java DesignChallenge
+N1   205 slots on 5 uneven floors all allocatable               expected=accepted   actual=accepted   PASS
+N2   206th vehicle rejected                                     expected=Facility full actual=Facility full PASS
+N3   Regression: two-wheeler 130 min                            expected=30.0       actual=30.0       PASS
+N4   Regression: EV 130 min + 10 kWh                            expected=210.0      actual=210.0      PASS
+N5   E-bike, 130 min = flat Rs 15                               expected=15.0       actual=15.0       PASS
+N6   E-bike, 600 min = still flat Rs 15                         expected=15.0       actual=15.0       PASS
+N7   Van 10:00, 130 min (3 peak hours x 60)                     expected=180.0      actual=180.0      PASS
+N8   Van 08:00, 120 min (30 + 60)                               expected=90.0       actual=90.0       PASS
+N9   Van 16:30, 100 min (60 + 30)                               expected=90.0       actual=90.0       PASS
+N10  Van 20:00, 60 min off-peak                                 expected=30.0       actual=30.0       PASS
+N11  Visitor with one-day pass parks free on day 0              expected=0.0        actual=0.0        PASS
+N12  Same pass on day 1 is invalid -> pays (130 min)            expected=90.0       actual=90.0       PASS
+N13  Pass sale (100) + day-1 parking (90) collected             expected=190.0      actual=190.0      PASS
+N14  Unknown type still rejected                                expected=Unknown vehicle type: BUS actual=Unknown vehicle type: BUS PASS
+Hand calculation: 15 + 180 + 100 + 0 + 90 = 385
+N15  Day total                                                  expected=385.0      actual=385.0      PASS
+Passed 15 / 15
+Existing classes changed: 3 (Vehicle, Ticket, ParkingLot); unchanged: TwoWheeler, Car, ElectricCar, ParkingFacility, UserType, Chargeable
+Limitation: PeakRule/FlatRule apply no daily maximum; a DailyCapRule decorator could wrap any PricingRule.
+
+---- NOTES / ANSWERS ----
+DECISION: MODIFY (keep the hierarchy and the jagged-array facility). Impact: new vehicle categories and a time-of-day rule broke the idea 'fee = hours x one rate' and a pass that is valid only one day broke the boolean 'free' flag. 5 floors with different slot counts: already handled by the jagged array.
+Changed classes: 3 (Vehicle, Ticket, ParkingLot). Unchanged: TwoWheeler, Car, ElectricCar, ParkingFacility, UserType, Chargeable.
+Pricing is now in ONE abstraction (PricingRule: HourlyRule, FlatRule, PeakRule) instead of scattered ratePerHour() numbers; old subclasses still work through the default rule() (regression tests N3, N4).
+Adding a further vehicle type = one subclass + one Vehicle.register(...) line (0 existing classes edited). All 15 tests pass; hand total 385 = program output.
+Trade-offs: a few more classes/interfaces; PeakRule/FlatRule have no daily cap (a DailyCapRule decorator could be added).

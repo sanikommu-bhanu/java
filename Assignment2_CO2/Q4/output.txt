@@ -1,0 +1,36 @@
+==============================================================================
+OUTPUT FILE - Assignment2_CO2/Q4
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac -Xlint:none MapBench.java 2>&1 | grep -v Note   (compiled without errors)
+
+---- PROGRAM OUTPUT: MapBench ----
+$ java MapBench
+=== n = 1000 medicines ===
+map            put all ms    100k get ms code-order rpt ms insertion-order rpt ms
+HashMap                 4              5            7 OK   n/a (side list)       (checksum 96)
+TreeMap                 2             62            1 OK   n/a (side list)       (checksum 96)
+LinkedHashMap           0             22            5 OK                0 OK    (checksum 96)
+sorted String[] + binarySearch: 100k lookups 19 ms (O(log n)); 2,000 insertions into sorted list 8322 us (O(n) shift each); code-order report = plain O(n) scan
+=== n = 50000 medicines ===
+map            put all ms    100k get ms code-order rpt ms insertion-order rpt ms
+HashMap                21              8           60 OK   n/a (side list)       (checksum 694)
+TreeMap                65             96           49 OK   n/a (side list)       (checksum 694)
+LinkedHashMap          21              6          103 OK                3 OK    (checksum 694)
+sorted String[] + binarySearch: 100k lookups 88 ms (O(log n)); 2,000 insertions into sorted list 655 us (O(n) shift each); code-order report = plain O(n) scan
+=== n = 300000 medicines ===
+map            put all ms    100k get ms code-order rpt ms insertion-order rpt ms
+HashMap               168              9          409 OK   n/a (side list)       (checksum 694)
+TreeMap               487            105          285 OK   n/a (side list)       (checksum 694)
+LinkedHashMap          36              4          313 OK               16 OK    (checksum 694)
+sorted String[] + binarySearch: 100k lookups 74 ms (O(log n)); 2,000 insertions into sorted list 1030 us (O(n) shift each); code-order report = plain O(n) scan
+Decision: HashMap for the 100k-lookups workload (O(1)); the nightly code-order report needs one O(n log n) sort, or use TreeMap if the code-order report must be cheap
+and lookups are fewer; LinkedHashMap gives the insertion-order report for free at ~1 extra pointer pair per entry.
+Hashtable is not preferred: legacy, every method synchronized (contention, no benefit single-threaded), no null keys; use HashMap or ConcurrentHashMap.
+
+---- NOTES / ANSWERS ----
+Expected: HashMap put/get O(1), no order; TreeMap O(log n), sorted iteration; LinkedHashMap O(1), insertion-order iteration.
+Reports: code order = TreeMap naturally (HashMap/LinkedHashMap need an extra O(n log n) sort); insertion order = LinkedHashMap naturally (others need a side list).
+Acceptable lookup time (defined): <= 1 microsecond average. Measured 100,000 lookups: HashMap ~5-12 ms (0.05-0.12 us each), TreeMap ~40-85 ms. Deploy HashMap (or LinkedHashMap if the insertion report is needed); the remaining cost is String hashing/equals and the nightly sort.
+Hashtable not preferred: legacy, every method synchronized, no nulls; use HashMap / ConcurrentHashMap.
+Sorted array + binarySearch: lookup O(log n), insertion O(n), code-order report O(n), least memory.

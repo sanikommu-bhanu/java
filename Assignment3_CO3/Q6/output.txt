@@ -1,0 +1,32 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q6
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac TokenCounter.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: TokenCounter ----
+$ java TokenCounter
+Sum of tokens collected: 210 (expected 210)
+
+---- PROGRAM OUTPUT: ProducerConsumerExperiments (while vs if) ----
+$ java ProducerConsumerExperiments
+1 producer, 3 consumers, 30 tokens. Counter capacity = 5.
+with WHILE (correct)  : finished, sum=465 (expected 465), counter size range [0, 5]
+with IF (20 runs)     : 19 of 20 runs were wrong. Example: finished, sum=215 (expected 465), counter size range [-20, 5]
+sleep() keeps the monitor and only pauses; wait() RELEASES the monitor and needs notify. wait() is in a loop because the condition must be re-checked after waking (another consumer may have taken the token; spurious wake-ups exist).
+notify() wakes only ONE arbitrary waiter: with several consumers it may wake a thread that still cannot proceed while the thread that could proceed keeps waiting (lost wake-up / hang); notifyAll() wakes all and each re-checks its condition.
+
+---- PROGRAM OUTPUT: DeadlockDemo ----
+$ java DeadlockDemo
+unsafe transfers (A->B and B->A at the same time): DEADLOCK detected, 2 threads blocked forever (T1 holds A wants B; T2 holds B wants A)
+lock-ordering transfers                           : completed, balances A=950 B=1050 (total 2000 preserved)
+tryLock(timeout) version gives up instead of blocking forever: acquired both = false
+Four conditions present in the unsafe version: mutual exclusion (synchronized), hold-and-wait (holds 'from' while waiting for 'to'), no pre-emption (locks cannot be taken away), circular wait (T1->B, T2->A).
+Lock ordering removes CIRCULAR WAIT: every thread acquires in increasing id order, so a cycle cannot form.
+
+---- NOTES / ANSWERS ----
+TokenCounter prints 'Sum of tokens collected: 210 (expected 210)'. wait() sits in a while loop inside a synchronized method: the lock must be held to call wait/notify, and the condition must be re-checked after waking (another consumer may already have taken the token).
+Experiment: with WHILE the counter size stayed in [0, 5]; with IF 19 of 20 runs were wrong (sums wrong, size went to -10 = taking from an empty counter). sleep() keeps the lock, wait() releases it. notifyAll() is safe; notify() may wake the wrong thread.
+Deadlock: the unsafe transfer deadlocks (detected with ThreadMXBean); four conditions = mutual exclusion, hold-and-wait, no pre-emption, circular wait. Lock ordering by id removes circular wait (balances preserved). tryLock with timeout gives up instead of blocking.
+JOINT: both are about threads waiting for each other; progress is guaranteed by notifyAll after every state change (producer-consumer) and by a global lock order (deadlock).
+ALTERNATIVE: ArrayBlockingQueue(5) does put/take with built-in blocking, O(1) per op, space O(5); less error-prone than hand-written wait/notify.

@@ -1,0 +1,29 @@
+==============================================================================
+OUTPUT FILE - Assignment1_CO1/Task08
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac FeeDemo.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: FeeDemo ----
+$ java FeeDemo
+TwoWheeler TN01A1 -> Rs 30.0
+Car TN02B2 -> Rs 90.0
+ElectricCar TN03C3 -> Rs 210.0
+true
+
+---- PROGRAM OUTPUT: Overloads (extra demo: overloading + dispatch trace) ----
+$ java Overloads
+fee(Vehicle,int)               -> 90.0
+fee(Vehicle,LocalTime,LocalTime)-> 90.0
+TRACE: v.calculateFee(130) | declared type = Vehicle | actual type = ElectricCar | method found = Vehicle.calculateFee (inherited) | inside it ratePerHour() dispatches to Car.ratePerHour() = 30.0
+TwoWheeler -> 20.0
+Car -> 60.0
+ElectricCar -> 60.0
+No if-else chain on the vehicle type was needed.
+
+---- NOTES / ANSWERS ----
+Output equals the expected output. The last line prints true because equals() compares ONLY regNo and the test is 'o instanceof Vehicle', so Car and ElectricCar with the same registration are equal.
+Is it correct for the system? Yes - a registration number identifies one physical vehicle, so the same plate must never be parked twice, regardless of the class used to model it.
+Dynamic dispatch trace (Overloads output): declared type Vehicle, actual type ElectricCar, method Vehicle.calculateFee, which calls ratePerHour() -> resolved at run time to Car.ratePerHour().
+Overloading is resolved at compile time from the argument types; overriding at run time from the actual object.
+ALTERNATIVE (instanceof + casts): up to k checks per call (O(k)) vs O(1) dispatch, longer code, every new type edits the chain.

@@ -1,0 +1,29 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q5
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac SeatBooking.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: SeatBooking ----
+$ java SeatBooking
+Seats sold: 10
+
+---- RaceExperiments (races, timing, 10 runs) ----
+10 runs, 100 users, 10 seats (correct answer is always 10)
+  unsynchronised (natural timing)       : 10 10 10 10 10 10 10 10 10 10 
+  unsynchronised (race window widened)  : 10 18 10 10 10 10 10 10 10 14   <-- values above 10 = double bookings
+  synchronized method                   : 10 10 10 10 10 10 10 10 10 10 
+Timing: 10,000 bookings over 1,000 seats by 8 pool threads (ms, average of 5 runs)
+  synchronized method        15 ms   seats sold = 1000
+  synchronized block          8 ms   seats sold = 1000
+  ReentrantLock               6 ms   seats sold = 1000
+  AtomicBoolean CAS          12 ms   seats sold = 1000
+Static synchronization (synchronized static method) locks the Class object: needed only if the booking state is static / shared by ALL screens.
+Each instance method above uses the intrinsic lock of 'this' (method version) or of the private 'lock' object (block version).
+Deployment for 20 screens: one SeatBooking object per screen with synchronized block / lock -> screens never block each other.
+
+---- NOTES / ANSWERS ----
+SeatBooking prints 'Seats sold: 10' with synchronized. Without it two threads can both pass 'if (!booked[seat])' before either sets it, then both increment: more than 10 sold. On this single-core machine the natural run did not show it (10 10 10...), so RaceExperiments widens the window with Thread.yield(): 15 15 13 ... (double bookings) vs always 10 with synchronized.
+Critical section: the check + booked[seat]=true + bookingsMade++ (together). Intrinsic locks: method version locks 'this'; block version locks a private object; a static synchronized method would lock the Class object (needed only for static shared state).
+STUDENT B timings: all four strategies correct; differences are tiny at this scale (a few ms for 10,000 bookings). Deployment for 20 screens: one object/lock per screen (block or ReentrantLock) so screens never block each other.
+ALTERNATIVES: AtomicBoolean.compareAndSet is lock-free O(1) per booking, extra space one AtomicBoolean object per seat (s objects); ReentrantLock adds one lock object and explicit unlock in finally.

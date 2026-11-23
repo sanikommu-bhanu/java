@@ -1,0 +1,36 @@
+==============================================================================
+OUTPUT FILE - Assignment3_CO3/Q3
+Captured on OpenJDK 21. Timings vary between machines: re-run the commands to get your own numbers for submission.
+==============================================================================
+$ javac SalesReport.java   (compiled without errors)
+
+---- PROGRAM OUTPUT: SalesReport ----
+$ java SalesReport
+=== same good input: all three versions must agree ===
+A leaky        -> total 1155.0
+   files still open after the run: 0
+B finally      -> total 1155.0
+   files still open after the run: 0
+C try-with-res -> total 1155.0
+   files still open after the run: 0
+=== failing input (file 2 is corrupt) ===
+   LOG: failure while reading /tmp/stores8739849782379095042/store2_bad.csv : For input string: "ONE"
+A leaky        -> FAILED with NumberFormatException
+   files still open after the run: 3
+   LOG: failure while reading /tmp/stores8739849782379095042/store2_bad.csv : For input string: "ONE"
+B finally      -> FAILED with NumberFormatException
+   files still open after the run: 0
+   LOG: failure while reading /tmp/stores8739849782379095042/store2_bad.csv : For input string: "ONE"
+C try-with-res -> FAILED with NumberFormatException
+   files still open after the run: 0
+=== suppressed exception (body fails AND close() fails) ===
+primary  : java.lang.IllegalStateException: body failed
+suppressed: java.io.IOException: close() failed for res-B
+suppressed: java.io.IOException: close() failed for res-A
+(resources are closed in REVERSE order: res-B first, then res-A)
+
+---- NOTES / ANSWERS ----
+Same totals for all three versions on good input. On the failing input: version A (close not in finally, all files opened first) leaves 3 files open; B (finally) and C (try-with-resources) leave 0. Logging shows which file failed.
+try-with-resources closes every resource, in reverse order of opening, even on exceptions; if close() also throws, that exception is attached as SUPPRESSED to the primary one (shown above).
+Not sufficient alone when: you open many resources before the try (allocation outside), the failure is a logic error (partial report written), or you need retry/rollback of the half-written summary file.
+Complexity: processing O(total lines) in all versions; handles held at failure: A = f, B/C = 0 (C holds at most 1 while running).
